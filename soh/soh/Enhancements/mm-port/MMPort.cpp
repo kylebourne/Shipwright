@@ -5,6 +5,7 @@
 
 extern "C" {
 #include "src/overlays/actors/ovl_Mm_Obj_Tree/z_mm_obj_tree.h"
+#include "src/overlays/actors/ovl_Mm_En_Mkk/z_mm_en_mkk.h"
 #include "macros.h"
 }
 
@@ -34,6 +35,23 @@ void RegisterActors() {
         nullptr,
     };
     ActorDB::Instance->AddEntry(tree);
+
+    // params: 0 = Black Boe, 1 = White Boe. Add 4 to make it respawn after dying.
+    ActorDBInit boe = {
+        "Mm_En_Mkk",
+        "MM: Boe (Black/White)",
+        -1,
+        ACTORCAT_ENEMY,
+        ACTOR_FLAG_ATTENTION_ENABLED | ACTOR_FLAG_HOSTILE,
+        OBJECT_GAMEPLAY_KEEP,
+        sizeof(MmEnMkk),
+        (ActorFunc)MmEnMkk_Init,
+        (ActorFunc)MmEnMkk_Destroy,
+        (ActorFunc)MmEnMkk_Update,
+        (ActorFunc)MmEnMkk_Draw,
+        nullptr,
+    };
+    ActorDB::Instance->AddEntry(boe);
 }
 
 } // namespace MMPort

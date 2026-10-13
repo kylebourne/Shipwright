@@ -1,0 +1,107 @@
+# Majora's Mask object_mkk (Black and White Boes).
+# Offsets match the MM decomp's assets/xml/N64_US/objects/object_mkk.xml.
+# Paths are prefixed with mm/ so they never collide with Ocarina's files.
+:config:
+  directory: mm/objects/object_mkk
+  segments:
+    - [ 6, 0x011AD970 ]
+
+gBlackBoeBodyVtx:
+  type: OOT:ARRAY
+  offset: 0x0
+  symbol: gBlackBoeBodyVtx
+  count: 3
+  array_type: VTX
+  zero_flag: true
+  null_cross_file: true
+
+gBlackBoeEyesVtx:
+  type: OOT:ARRAY
+  offset: 0xE0
+  symbol: gBlackBoeEyesVtx
+  count: 6
+  array_type: VTX
+  zero_flag: true
+  null_cross_file: true
+
+gWhiteBoeBodyVtx:
+  type: OOT:ARRAY
+  offset: 0x1C0
+  symbol: gWhiteBoeBodyVtx
+  count: 3
+  array_type: VTX
+  zero_flag: true
+  null_cross_file: true
+
+gWhiteBoeEyesVtx:
+  type: OOT:ARRAY
+  offset: 0x2B0
+  symbol: gWhiteBoeEyesVtx
+  count: 6
+  array_type: VTX
+  zero_flag: true
+  null_cross_file: true
+
+gBlackBoeBodyMaterialDL:
+  type: GFX
+  offset: 0x30
+  symbol: gBlackBoeBodyMaterialDL
+
+gBlackBoeBodyModelDL:
+  type: GFX
+  offset: 0xB0
+  symbol: gBlackBoeBodyModelDL
+
+gBlackBoeEndDL:
+  type: GFX
+  offset: 0xC8
+  symbol: gBlackBoeEndDL
+
+gBlackBoeEyesDL:
+  type: GFX
+  offset: 0x140
+  symbol: gBlackBoeEyesDL
+
+gWhiteBoeBodyMaterialDL:
+  type: GFX
+  offset: 0x1F0
+  symbol: gWhiteBoeBodyMaterialDL
+
+gWhiteBoeBodyModelDL:
+  type: GFX
+  offset: 0x278
+  symbol: gWhiteBoeBodyModelDL
+
+gWhiteBoeEndDL:
+  type: GFX
+  offset: 0x290
+  symbol: gWhiteBoeEndDL
+
+gWhiteBoeEyesDL:
+  type: GFX
+  offset: 0x310
+  symbol: gWhiteBoeEyesDL
+
+gBlackBoeTex:
+  type: TEXTURE
+  offset: 0x390
+  symbol: gBlackBoeTex
+  format: I4
+  width: 16
+  height: 16
+
+gWhiteBoeTex:
+  type: TEXTURE
+  offset: 0x410
+  symbol: gWhiteBoeTex
+  format: I4
+  width: 16
+  height: 16
+
+gBoeEyeTex:
+  type: TEXTURE
+  offset: 0x490
+  symbol: gBoeEyeTex
+  format: RGBA16
+  width: 8
+  height: 8
