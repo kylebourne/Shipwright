@@ -23,6 +23,7 @@ enum class RomSearchMode {
     Both = 0,
     Vanilla = 1,
     MQ = 2,
+    Majora = 3, // MM port: Majora's Mask US 1.0, extracted to mm.o2r
 };
 
 class Extractor {
@@ -58,6 +59,8 @@ class Extractor {
     static int ShowYesNoBox(const char* title, const char* text);
     static void ShowErrorBox(const char* title, const char* text);
     bool IsMasterQuest() const;
+    bool IsMajorasMask() const;
+    bool MatchesSearchMode(RomSearchMode searchMode) const;
     bool ManuallySearchForRomMatchingType(RomSearchMode searchMode);
 
     void SetSearchPath(const std::string& path);

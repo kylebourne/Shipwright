@@ -72,6 +72,8 @@ static constexpr uint32_t OOT_NTSC_JP_MQ = 0xF43B45BA;
 static constexpr uint32_t OOT_NTSC_10 = 0xEC7011B7;
 static constexpr uint32_t OOT_NTSC_11 = 0xD43DA81F;
 static constexpr uint32_t OOT_NTSC_12 = 0x693BA2AE;
+// MM port: Majora's Mask (USA) 1.0, header CRC1. Extracted into mm.o2r, never into oot.o2r.
+static constexpr uint32_t MM_NTSC_US_10 = 0x5354631C;
 
 static const std::unordered_map<uint32_t, const char*> verMap = {
     { OOT_PAL_GC, "PAL Gamecube" },         { OOT_PAL_MQ, "PAL MQ" },
@@ -82,10 +84,11 @@ static const std::unordered_map<uint32_t, const char*> verMap = {
     { OOT_NTSC_US_MQ, "NTSC MQ US" },       { OOT_NTSC_JP_MQ, "NTSC MQ JP" },
     { OOT_NTSC_10, "NTSC N64 1.0" },        { OOT_NTSC_11, "NTSC N64 1.1" },
     { OOT_NTSC_12, "NTSC N64 1.2" },
+    { MM_NTSC_US_10, "Majora's Mask NTSC N64 US 1.0" },
 };
 
 // TODO only check the first 54MB of the rom.
-static constexpr std::array<const uint32_t, 21> goodCrcs = {
+static constexpr std::array<const uint32_t, 22> goodCrcs = {
     0xfa8c0555, // MQ DBG 64MB (Original overdump)
     0x8652ac4c, // MQ DBG 64MB
     0x5B8A1EB7, // MQ DBG 64MB (Empty overdump)
@@ -107,6 +110,7 @@ static constexpr std::array<const uint32_t, 21> goodCrcs = {
     0x11A4BE61, // GC NTSC JP
     0x2BC6C6FD, // GC NTSC JP Collector's Edition
     0x02CD974C, // GC MQ NTSC JP
+    0x96F49400, // MM N64 NTSC US 1.0 (MM port)
 };
 
 enum class ButtonId : int {
@@ -216,8 +220,7 @@ void Extractor::FilterRoms(std::vector<std::string>& roms, RomSearchMode searchM
 
         // Rom doesn't claim to be valid
         // Game type doesn't match search mode
-        if (!verMap.contains(GetRomVerCrc()) || (searchMode == RomSearchMode::Vanilla && IsMasterQuest()) ||
-            (searchMode == RomSearchMode::MQ && !IsMasterQuest())) {
+        if (!verMap.contains(GetRomVerCrc()) || !MatchesSearchMode(searchMode)) {
             it = roms.erase(it);
             continue;
         }
@@ -440,14 +443,27 @@ bool Extractor::ManuallySearchForRomMatchingType(RomSearchMode searchMode) {
         return false;
     }
 
-    char msgBuf[150];
+    const char* expected = "Ocarina of Time";
+    switch (searchMode) {
+        case RomSearchMode::MQ:
+            expected = "Master Quest";
+            break;
+        case RomSearchMode::Vanilla:
+            expected = "Vanilla";
+            break;
+        case RomSearchMode::Majora:
+            expected = "Majora's Mask (USA) 1.0";
+            break;
+        default:
+            break;
+    }
+    char msgBuf[180];
     snprintf(
-        msgBuf, 150,
+        msgBuf, sizeof(msgBuf),
         "The selected rom does not match the expected game type\nExpected type: %s.\n\nDo you want to search again?",
-        searchMode == RomSearchMode::MQ ? "Master Quest" : "Vanilla");
+        expected);
 
-    while ((searchMode == RomSearchMode::Vanilla && IsMasterQuest()) ||
-           (searchMode == RomSearchMode::MQ && !IsMasterQuest())) {
+    while (!MatchesSearchMode(searchMode)) {
         int ret = ShowYesNoBox("Wrong Game Type", msgBuf);
         switch (ret) {
             case IDYES:
@@ -560,8 +576,30 @@ bool Extractor::Run(std::string searchPath, RomSearchMode searchMode) {
     return true;
 }
 
+bool Extractor::IsMajorasMask() const {
+    return GetRomVerCrc() == MM_NTSC_US_10;
+}
+
+// Which ROMs a prompt accepts. Majora's Mask is only ever taken when asked for, so it can't be
+// extracted in place of Ocarina of Time.
+bool Extractor::MatchesSearchMode(RomSearchMode searchMode) const {
+    switch (searchMode) {
+        case RomSearchMode::Majora:
+            return IsMajorasMask();
+        case RomSearchMode::Vanilla:
+            return !IsMajorasMask() && !IsMasterQuest();
+        case RomSearchMode::MQ:
+            return !IsMajorasMask() && IsMasterQuest();
+        case RomSearchMode::Both:
+        default:
+            return !IsMajorasMask();
+    }
+}
+
 bool Extractor::IsMasterQuest() const {
     switch (GetRomVerCrc()) {
+        case MM_NTSC_US_10:
+            return false;
         case OOT_PAL_MQ:
         case OOT_PAL_GC_MQ_DBG:
         case OOT_NTSC_US_MQ:
@@ -615,6 +653,8 @@ const char* Extractor::GetTorchVersionDir() const {
             return "ntsc_1-1";
         case OOT_NTSC_12:
             return "ntsc_1-2";
+        case MM_NTSC_US_10:
+            return "mm_ntsc_u_1-0";
         default:
             // We should never be in a state where this path happens.
             UNREACHABLE;

@@ -410,6 +410,7 @@ static bool RemoveArchiveAcrossAppDirs(const std::string& fileName) {
 
 void OTRGlobals::RunExtract(int argc, char* argv[]) {
     bool extractDone = false;
+    bool mmPromptShown = false; // MM port: offer Majora's Mask extraction once per launch
     ExtractSteps extractStep = ES_PORT_ARCHIVE;
     WindowsSteps windowsStep = WS_TEMP;
     auto wnd = std::dynamic_pointer_cast<Fast::Fast3dWindow>(OTRGlobals::Instance->context->GetWindow());
@@ -608,7 +609,8 @@ void OTRGlobals::RunExtract(int argc, char* argv[]) {
                 extract = Extractor();
                 if (extract.RunFileStandalone(file)) {
                     bool doExtract = true;
-                    std::string archive = (extract.IsMasterQuest() ? "oot-mq.o2r" : "oot.o2r");
+                    std::string archive =
+                        extract.IsMajorasMask() ? "mm.o2r" : (extract.IsMasterQuest() ? "oot-mq.o2r" : "oot.o2r");
                     if (std::filesystem::exists(Ship::Context::GetAppDirectoryPath(appShortName) + "/" + archive)) {
                         std::string msg = "Archive for current ROM, " + archive + ", already exists.\nExtract again?";
                         SohGui::RegisterPopup("Confirm Re-extract", msg.c_str(), "Yes", "No", [&]() {
@@ -720,6 +722,28 @@ void OTRGlobals::RunExtract(int argc, char* argv[]) {
                     SohGui::RegisterPopup("No ROM Archives",
                                           "No ROM O2R files detected. Please generate a ROM O2R and relaunch.", "OK",
                                           "", [&]() { exit(0); });
+                } else if (!mmPromptShown &&
+                           !std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("mm.o2r", appShortName))) {
+                    // MM port: Majora's Mask content needs its own archive, made from the player's MM ROM.
+                    mmPromptShown = true;
+                    SohGui::RegisterPopup(
+                        "Majora's Mask Assets",
+                        "This build can use content from Majora's Mask.\nSelect your Majora's Mask (USA) 1.0 ROM to "
+                        "extract mm.o2r?",
+                        "Yes", "Not now",
+                        [&]() {
+                            extract = Extractor();
+                            if (extract.ManuallySearchForRomMatchingType(RomSearchMode::Majora)) {
+                                extractionTask = threadPool->submit_task([&]() -> void {
+                                    extract.CallTorch(installPath, Ship::Context::GetAppDirectoryPath(appShortName),
+                                                      &extractCount, &totalExtract);
+                                    extractCount = 0;
+                                    totalExtract = 0;
+                                });
+                            }
+                        },
+                        [&]() {});
+                    continue;
                 }
                 extractDone = true;
                 continue;
@@ -818,11 +842,18 @@ void OTRGlobals::Initialize() {
     if (std::filesystem::exists(ootPath)) {
         context->GetResourceManager()->GetArchiveManager()->AddArchive(ootPath);
     }
+    // MM port: Majora's Mask assets live under mm/ in their own archive. Added after Ocarina's so
+    // GetGameVersions()[0] is still the Ocarina ROM everywhere that checks it.
+    std::string mmPath = Ship::Context::LocateFileAcrossAppDirs("mm.o2r", appShortName);
+    if (std::filesystem::exists(mmPath)) {
+        context->GetResourceManager()->GetArchiveManager()->AddArchive(mmPath);
+    }
 
     std::unordered_set<uint32_t> ValidHashes = {
         OOT_PAL_MQ,     OOT_NTSC_JP_MQ, OOT_NTSC_US_MQ, OOT_PAL_GC_MQ_DBG, OOT_NTSC_US_10,
         OOT_NTSC_US_11, OOT_NTSC_US_12, OOT_PAL_10,     OOT_PAL_11,        OOT_NTSC_JP_GC_CE,
         OOT_NTSC_JP_GC, OOT_NTSC_US_GC, OOT_PAL_GC,     OOT_PAL_GC_DBG1,   OOT_PAL_GC_DBG2,
+        MM_NTSC_US_10, // MM port
     };
 
 #if (_DEBUG)
