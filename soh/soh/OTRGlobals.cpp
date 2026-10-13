@@ -81,6 +81,7 @@
 #include "Enhancements/Lang/Lang.h"
 #include "soh/SohGui/ImGuiUtils.h"
 #include "ActorDB.h"
+#include "Enhancements/mm-port/MMPort.h"
 #include "SaveManager.h"
 #include "soh/Network/CrowdControl/CrowdControl.h"
 #include "soh/Network/Sail/Sail.h"
@@ -1572,6 +1573,7 @@ extern "C" void InitOTR(int argc, char* argv[]) {
 
     AudioCollection::Instance = new AudioCollection();
     ActorDB::Instance = new ActorDB();
+    MMPort::RegisterActors(); // MM port: Majora's Mask actors get ids after Ocarina's
 #ifdef __APPLE__
     SpeechSynthesizer::Instance = new DarwinSpeechSynthesizer();
 #elif defined(_WIN32)
