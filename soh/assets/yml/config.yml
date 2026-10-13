@@ -235,3 +235,14 @@ fa5f5942b27480d60243c2d52c0e93e26b9e6b86:
     output:
       binary: oot.o2r
 
+d6133ace5afaa0882cf214cf88daba39e266c078:
+  name: Legend of Zelda, The - Majora's Mask (USA)
+  path: mm_ntsc_u_1-0
+  config:
+    gbi: F3DEX2_OoT
+    sort: OFFSET
+    logging: CRITICAL
+    primary_virtual_segment: 0x80
+    strict_declarations: true
+    output:
+      binary: mm.o2r

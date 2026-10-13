@@ -1,0 +1,56 @@
+# Majora's Mask object_tree (the single branching tree in North Clock Town).
+# Offsets match the MM decomp's assets/xml/N64_US/objects/object_tree.xml.
+# Paths are prefixed with mm/ so they never collide with Ocarina's files.
+:config:
+  directory: mm/objects/object_tree
+  segments:
+    - [ 6, 0x0148DAE0 ]
+
+gTreeBodyVtx:
+  type: OOT:ARRAY
+  offset: 0x0
+  symbol: gTreeBodyVtx
+  count: 68
+  array_type: VTX
+  zero_flag: true
+  null_cross_file: true
+
+gTreeLeavesVtx:
+  type: OOT:ARRAY
+  offset: 0x440
+  symbol: gTreeLeavesVtx
+  count: 36
+  array_type: VTX
+  zero_flag: true
+  null_cross_file: true
+
+gTreeBodyDL:
+  type: GFX
+  offset: 0x680
+  symbol: gTreeBodyDL
+
+gTreeLeavesDL:
+  type: GFX
+  offset: 0x7C8
+  symbol: gTreeLeavesDL
+
+gTreeBodyTex:
+  type: TEXTURE
+  offset: 0x8B8
+  symbol: gTreeBodyTex
+  format: RGBA16
+  width: 32
+  height: 32
+
+gTreeLeavesTex:
+  type: TEXTURE
+  offset: 0x10B8
+  symbol: gTreeLeavesTex
+  format: RGBA16
+  width: 32
+  height: 32
+
+gTreeTopCol:
+  type: OOT:COLLISION
+  offset: 0x1B2C
+  symbol: gTreeTopCol
